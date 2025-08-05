@@ -6,16 +6,15 @@ import requests
 from bs4 import BeautifulSoup
 
 try:
-    width, height = os.get_terminal_size()
-    p = True
+    WIDTH, HEIGHT = os.get_terminal_size()
+    COLOR_SUPPORT = True
 except OSError:
-    width = 120
-    height = 80
-    p = False
+    WIDTH = 120
+    HEIGHT = 80
+    COLOR_SUPPORT = False
 
 
-# Some ANSI escape color codes
-class color:
+class Color:
     PURPLE = "\033[95m"
     CYAN = "\033[96m"
     DARKCYAN = "\033[36m"
@@ -28,17 +27,9 @@ class color:
     END = "\033[0m"
 
 
-colors = ["\033[92m", "\033[95m", "\033[96m", "\033[94m", "\033[36m"]
-
-# Maybe Future Use
-# def get_tags(d, params):
-#   if any((lambda x:b in x if a == 'class' else b == x)(d.attrs.get(a, [])) for a, b in params.get(d.name, {}).items()):
-#      yield d
-#   for i in filter(lambda x:x != '\n' and not isinstance(x, bs4.element.NavigableString) , d.contents):
-#    yield from get_tags(i, params)
+COLORS = [Color.GREEN, Color.PURPLE, Color.CYAN, Color.BLUE, Color.DARKCYAN]
 
 
-# Makes request to wikipedia for the code
 def req(term, lang="en"):
     global wikiurl
     wikiurl = "https://" + lang + ".wikipedia.org/wiki/" + term
@@ -46,19 +37,15 @@ def req(term, lang="en"):
     return r.text
 
 
-# Gets summary
 def getSummary(term, lang="en"):
     final_content = []
     content = req(term, lang)
     soup = BeautifulSoup(content, "html.parser")
     content = soup.find_all("p")
-    # prints the title in the center
-    print("\n" + (color.BOLD + str(term)).center(width, "-") + "\n" + color.END)
+    print("\n" + (Color.BOLD + str(term)).center(WIDTH, "-") + "\n" + Color.END)
     for i in content:
-        # Removing all empty lines
         if i.get_text() == "\n":
             continue
-        # Removing all external links from the article
         if i("sup"):
             for tag in i("sup"):
                 tag.decompose()
@@ -66,16 +53,15 @@ def getSummary(term, lang="en"):
         data = i.get_text()
         final_content.append(data)
         if len(final_content) == 3:
-            break  # Breaks after 3 line of content
+            break
 
-    # Search for other if not available
     if "Other reasons this message may be displayed" in str(i):
         print("Did you mean: ")
         term = searchInfo(term, called=True)
     else:
-        print(colors[random.randrange(len(colors) - 1)])
+        print(COLORS[random.randrange(len(COLORS) - 1)])
         print(*final_content, sep="\n\n")
-        print(color.END)
+        print(Color.END)
 
 
 def getInfo(term, lang="en"):
@@ -83,7 +69,6 @@ def getInfo(term, lang="en"):
     content = req(term, lang)
     soup = BeautifulSoup(content, "html.parser")
     content = []
-    # Seprating Titles from the paragraphs
     for a in soup.find_all(["p", "span"]):
         try:
             if a["class"] and "mw-headline" in a["class"]:
@@ -92,35 +77,26 @@ def getInfo(term, lang="en"):
             if a.name == "p":
                 content.append(a)
 
-    # content = soup.find_all(['p',['span', {'class':'mw-headline'}]])
-    # content = soup.find_all(re.compile('p|span'), {'class':re.compile('|mw-headline')})#['p',('span' , {"class": "toctext"})])
-    # content = list(get_tags(soup),{'p':{}, 'span':{'class': 'mw-headline'}})
-
-    # Remove all external links
     for i in content:
         if i("sup"):
             for tag in i("sup"):
                 tag.decompose()
 
-        # Getting data
         data = i.get_text()
         if i.name == "span":
-            final_content.append("!" + str(data))  # Seprating titles
+            final_content.append("!" + str(data))
         else:
             final_content.append(data)
 
-    # Search if not found
     if "may refer to:" in str(final_content[0]):
         term = searchInfo(term)
-
-    # Printing the output
     else:
-        if p is True:
-            print("\n" + (color.BOLD + str(term)).center(width, "-") + color.END + "\n")
-            print(color.BLUE + str(wikiurl).center(width, " ") + color.END + "\n")
+        if COLOR_SUPPORT:
+            print("\n" + (Color.BOLD + str(term)).center(WIDTH, "-") + Color.END + "\n")
+            print(Color.BLUE + str(wikiurl).center(WIDTH, " ") + Color.END + "\n")
         else:
-            print("\n" + str(term).center(width, "-"))
-            print("\n" + str(wikiurl).center(width, " ") + "\n")
+            print("\n" + str(term).center(WIDTH, "-"))
+            print("\n" + str(wikiurl).center(WIDTH, " ") + "\n")
         for i in final_content:
             if i == "\n":
                 continue
@@ -132,14 +108,14 @@ def getInfo(term, lang="en"):
                 "!Further reading",
             ]:
                 continue
-            if p is True:
+            if COLOR_SUPPORT:
                 if str(i[0]) == "!":
                     print(
-                        color.BOLD
-                        + colors[random.randrange(len(colors) - 1)]
+                        Color.BOLD
+                        + COLORS[random.randrange(len(COLORS) - 1)]
                         + i[1:]
-                        + color.END
-                        + color.END
+                        + Color.END
+                        + Color.END
                     )
                     print("-" * (len(i) + 1))
                 else:
@@ -147,21 +123,19 @@ def getInfo(term, lang="en"):
                         searchInfo(term)
                     else:
                         print(
-                            color.YELLOW
+                            Color.YELLOW
                             + "[-] "
-                            + color.END
-                            + colors[random.randrange(len(colors) - 1)]
+                            + Color.END
+                            + COLORS[random.randrange(len(COLORS) - 1)]
                             + i
                             + "\n"
-                            + color.END
+                            + Color.END
                         )
             else:
                 print(str(i) + "\n")
 
 
-# Search for Similar Articles
 def searchInfo(term, lang="en", called=False):
-    # https://en.wikipedia.org/w/index.php?fulltext=Search&search
     r = requests.get(
         "https://" + lang + ".wikipedia.org/w/index.php?fulltext=Search&search=" + term,
         timeout=15,
