@@ -50,17 +50,14 @@ pip install wik
 Using wik is acutally really simple.
 
 ```
-usage: wik [-h] [-s SEARCH] [-i INFO] [-q QUICK] [-l LANG] [-x]
+usage: wik [-h] [-s SEARCH] [-i INFO] [-q QUICK] [-l LANG]
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -s SEARCH, --search SEARCH
-                        Search any topic
-  -i INFO, --info INFO  Get info on any topic
-  -q QUICK, --quick QUICK
-                        Get the summary on any topic
-  -l LANG, --lang LANG  Get info in your native language (default english)
-  -x, --rand            Get random Wikipedia article
+options:
+  -h, --help           show this help message and exit
+  -s, --search SEARCH  Search any topic
+  -i, --info INFO      Get info on any topic
+  -q, --quick QUICK    Get the summary on any topic
+  -l, --lang LANG      Get info in your native language (default english)
 ```
 
 ## Example
