@@ -59,7 +59,7 @@ def get_summary(term, lang="en"):
 
     if "Other reasons this message may be displayed" in str(i):
         print("Did you mean: ")
-        term = searchInfo(term, called=True)
+        term = search_info(term, called=True)
     else:
         print(COLORS[random.randrange(len(COLORS) - 1)])
         print(*final_content, sep="\n\n")
@@ -91,7 +91,7 @@ def get_info(term, lang="en"):
             final_content.append(data)
 
     if "may refer to:" in str(final_content[0]):
-        term = searchInfo(term)
+        term = search_info(term)
     else:
         if COLOR_SUPPORT:
             print("\n" + (Color.BOLD + str(term)).center(WIDTH, "-") + Color.END + "\n")
@@ -122,7 +122,7 @@ def get_info(term, lang="en"):
                     print("-" * (len(i) + 1))
                 else:
                     if "Other reasons this message may be displayed:" in i:
-                        searchInfo(term)
+                        search_info(term)
                     else:
                         print(
                             Color.YELLOW
