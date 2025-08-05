@@ -8,7 +8,7 @@
       pkgs = import nixpkgs { system = "x86_64-linux"; };
       wik = pkgs.python3Packages.buildPythonPackage {
         pname = "wik";
-        version = "0.1";
+        version = "1.4.0";
         pyproject = true;
         build-system = [pkgs.python3Packages.flit];
         src = self;
